@@ -1,0 +1,148 @@
+///https://gamedev.stackexchange.com/questions/4253/in-pong-how-do-you-calculate-the-balls-direction-when-it-bounces-off-the-paddl
+//used for understanding angle trigonometry
+
+Paddle paddle1;
+Paddle paddle2;
+
+int border = 20;
+
+int score1 = 0;
+int score2 = 0;
+
+class Ball {
+  float x;
+  float y;
+  float speed;
+  float angle;
+  float diam;
+  Ball() {
+    x =width/2;
+    y = height/2;
+    speed= 3;
+    angle = 0;
+    diam = 15;
+  }
+  void Reset() {
+    x = width/2;
+    y = height/2;
+    speed = 3;
+  }
+  void Move () {
+    if (x < 0) {
+      score2++;
+      angle = 0;
+      Reset();
+    } else if (x > width) {
+      score1++;
+      angle = PI;
+      Reset();
+    }
+    if (y -(diam/2)<border || y+(diam/2)>height-border) {
+      angle = -angle;
+    }
+    x += cos( angle ) * speed; 
+    y += sin( angle ) * speed; 
+    color(255);
+    ellipse(x, y, diam, diam);
+  }
+}
+class Paddle {
+  boolean up = false;
+  boolean down = false;
+  float x;
+  float y;
+  float hei;
+  float wid;
+  float speed;
+  float angleOffset;
+  Paddle(float tempX, float angTemp) {
+    x = tempX;
+    hei = 100;
+    y = height/2-hei/2;
+    wid = border;
+    speed = 4;
+    angleOffset = angTemp;
+  }
+  void Move () {
+    if (up == true && y > 0 + border ) {
+      y-= speed;
+    }
+    if (down==true && y < height - hei - border) {
+      y+= speed;
+    }
+    if (( ball.y > y && ball.y < y + hei)&&(ball.x + (ball.diam/2) > x && ball.x -(ball.diam/2) < x + wid)) {
+      ball.speed+= .4f;
+      float relativeIntersectY = ((y+(hei/2)) - ball.y);
+      float normalizedRelativeIntersectionY = (relativeIntersectY/(hei/2));
+      ball.angle = (normalizedRelativeIntersectionY + angleOffset);
+      print( y);
+    }
+    rect(x, y, wid, hei);
+  }
+}
+
+
+void setup() {
+  background(0);
+  size(600, 400);
+  paddle2 = new Paddle(0, 0);
+  paddle1 = new Paddle(width-border, 3.14);
+  ball = new Ball();
+}
+Ball ball;
+void keyPressed() {
+  if (key==CODED) {
+    if (keyCode==UP) {
+      paddle1.up = true;
+    }
+    if (keyCode==DOWN) {
+      paddle1.down = true;
+    }
+  }
+  if (key== 'W' || key== 'w') {
+    paddle2.up = true;
+  }      
+  if (key== 'S' || key== 's') {
+    paddle2.down = true;
+  }
+}
+void keyReleased() {
+  if (key==CODED) {
+    if (keyCode==UP) {
+      paddle1.up = false;
+    }
+    if (keyCode==DOWN) {
+      paddle1.down = false;
+    }
+  }
+  if (key == 'W'|| key== 'w') {
+    paddle2.up = false;
+  }      
+  if (key == 'S'|| key== 's') {
+    paddle2.down = false;
+  }
+}
+void draw () {
+ // background(0);
+  fill(255);
+  noStroke();
+   for (int i = 0; i < 10; i++) {
+    rect(width/2-(border/4), i*height/9-5, border/2, 10);
+  }
+  stroke(1);
+
+  paddle1.Move();
+  paddle2.Move();
+  ball.Move();
+  noStroke();
+  rect(0, 0, width, border);
+  rect(0, height-border, width, border);
+  fill(0);
+    textSize(border-2);
+  textAlign(CENTER,CENTER);
+  
+  text(score1, (width/4), border/2);
+  text(score2, width/2+(width/4), border/2);
+  text("PONG", width/2, height-border/2);
+
+}
