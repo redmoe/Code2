@@ -4,8 +4,6 @@
 Paddle paddle1;
 Paddle paddle2;
 
-boolean winningPlayer;
-
 int border = 20;
 
 int score1 = 0;
@@ -31,22 +29,16 @@ class Ball {
   }
   void Move () {
     if (x < 0) {
-      if (winningPlayer) {
-              score2++;
-
-      }
-      else {
-        score1++;
-      }
-      
+      score2++;
       angle = 0;
       Reset();
-    } 
+    } else if (x > width) {
+      score1++;
+      angle = PI;
+      Reset();
+    }
     if (y -(diam/2)<border || y+(diam/2)>height-border) {
       angle = -angle;
-    }
-    if (ball.x > width-border) {
-      angle = -angle+3.14;
     }
     x += cos( angle ) * speed; 
     y += sin( angle ) * speed; 
@@ -63,15 +55,13 @@ class Paddle {
   float wid;
   float speed;
   float angleOffset;
-  boolean player;
-  Paddle(float tempX, float tempY, float angTemp, boolean tempPlay) {
+  Paddle(float tempX, float angTemp) {
     x = tempX;
-    hei = 50;
-    y = tempY;
+    hei = 100;
+    y = height/2-hei/2;
     wid = border;
     speed = 4;
     angleOffset = angTemp;
-    player = tempPlay;
   }
   void Move () {
     if (up == true && y > 0 + border ) {
@@ -81,12 +71,11 @@ class Paddle {
       y+= speed;
     }
     if (( ball.y > y && ball.y < y + hei)&&(ball.x + (ball.diam/2) > x && ball.x -(ball.diam/2) < x + wid)) {
-      winningPlayer = ! winningPlayer ;
       ball.speed+= .4f;
       float relativeIntersectY = ((y+(hei/2)) - ball.y);
       float normalizedRelativeIntersectionY = (relativeIntersectY/(hei/2));
       ball.angle = (normalizedRelativeIntersectionY + angleOffset);
-      print( normalizedRelativeIntersectionY + angleOffset);
+      print( y);
     }
     rect(x, y, wid, hei);
   }
@@ -95,9 +84,9 @@ class Paddle {
 
 void setup() {
   background(0);
-  size(400, 400);
-  paddle2 = new Paddle(0,height/2-50, 0, false);
-  paddle1 = new Paddle(0,height/2, 0, true);
+  size(600, 400);
+  paddle2 = new Paddle(0, 0);
+  paddle1 = new Paddle(width-border, 3.14);
   ball = new Ball();
 }
 Ball ball;
@@ -134,36 +123,26 @@ void keyReleased() {
   }
 }
 void draw () {
-  background(0);
-  color(255);
+ // background(0);
+  fill(255);
   noStroke();
-  // for (int i = 0; i < 10; i++) {
-  //  rect(width-(border/2), i*height/9-5, border/2, 10);
-  //}
-    rect(width-20, 0, border, height);
-
-  rect(0, 0, width, border);
-  rect(0, height-border, width, border);
- //s stroke(1);
+   for (int i = 0; i < 10; i++) {
+    rect(width/2-(border/4), i*height/9-5, border/2, 10);
+  }
+  stroke(1);
 
   paddle1.Move();
   paddle2.Move();
   ball.Move();
-  textSize(border);
-  if (!winningPlayer) {
-    textSize(40);
-  }
-  else {
-      textSize(border);
+  noStroke();
+  rect(0, 0, width, border);
+  rect(0, height-border, width, border);
+  fill(0);
+    textSize(border-2);
+  textAlign(CENTER,CENTER);
+  
+  text(score1, (width/4), border/2);
+  text(score2, width/2+(width/4), border/2);
+  text("PONG", width/2, height-border/2);
 
-  }
-  text(score1, 100, 100);
-  if (winningPlayer) {
-    textSize(40);
-  }
-  else {
-      textSize(border);
-
-  }  
-  text(score2, width-100, 100);
 }
